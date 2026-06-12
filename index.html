@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GG Tech — Smart Solution</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #050a0e;
+    --bg-2: #0a141c;
+    --panel: #0d1b24;
+    --cyan: #4ee8f5;
+    --cyan-dim: #1c5560;
+    --red: #ff3b3b;
+    --text: #d9f4f7;
+    --text-dim: #6f95a0;
+    --line: rgba(78,232,245,0.18);
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Chakra Petch', sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--display);
+    overflow-x:hidden;
+  }
+
+  /* background grid texture */
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(rgba(78,232,245,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(78,232,245,0.04) 1px, transparent 1px);
+    background-size: 42px 42px;
+    pointer-events:none;
+    z-index:0;
+    mask-image: radial-gradient(ellipse at top, black 0%, transparent 70%);
+  }
+
+  .wrap{position:relative; z-index:1;}
+
+  a{color:inherit; text-decoration:none;}
+
+  /* ===== HEADER ===== */
+  header{
+    position:fixed; top:0; left:0; right:0;
+    z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 5%;
+    background:rgba(5,10,14,0.7);
+    backdrop-filter: blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .logo-group{display:flex; align-items:center; gap:12px;}
+  .logo-group img{width:42px; height:42px; border-radius:8px; box-shadow:0 0 18px rgba(78,232,245,0.4);}
+  .logo-text{font-family:var(--display); font-weight:700; font-size:1.15rem; letter-spacing:2px; line-height:1.1;}
+  .logo-text span{display:block; font-family:var(--mono); font-size:0.6rem; font-weight:400; letter-spacing:3px; color:var(--cyan); margin-top:2px;}
+
+  nav{display:flex; gap:32px; font-size:0.85rem; letter-spacing:1px;}
+  nav a{color:var(--text-dim); transition:color .25s; position:relative; padding-bottom:4px;}
+  nav a:hover, nav a:focus-visible{color:var(--cyan);}
+  nav a::after{
+    content:""; position:absolute; left:0; bottom:0; width:0; height:1px; background:var(--cyan);
+    transition:width .25s;
+  }
+  nav a:hover::after{width:100%;}
+
+  .nav-cta{
+    border:1px solid var(--cyan); padding:8px 18px; border-radius:4px; color:var(--cyan)!important; font-family:var(--mono);
+  }
+  .nav-cta::after{display:none;}
+  .nav-cta:hover{background:var(--cyan); color:#031015!important;}
+
+  .menu-toggle{display:none;}
+
+  /* ===== HERO ===== */
+  .hero{
+    min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    padding:140px 5% 80px;
+    position:relative;
+    text-align:center;
+    flex-direction:column;
+    gap:28px;
+  }
+  .hero::after{
+    content:"";
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:900px; height:900px;
+    background: radial-gradient(circle, rgba(78,232,245,0.10) 0%, transparent 60%);
+    z-index:-1;
+  }
+  .hero-logo{
+    width:170px; height:170px; border-radius:24px;
+    box-shadow:0 0 60px rgba(78,232,245,0.35), 0 0 0 1px var(--line);
+    animation: float 6s ease-in-out infinite;
+  }
+  @keyframes float{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-12px);}
+  }
+  .eyebrow{
+    font-family:var(--mono); font-size:0.78rem; letter-spacing:4px; color:var(--cyan);
+    border:1px solid var(--cyan-dim); padding:6px 16px; border-radius:30px;
+    display:inline-flex; align-items:center; gap:10px;
+  }
+  .eyebrow .dot{width:7px; height:7px; background:var(--red); border-radius:50%; box-shadow:0 0 8px var(--red); animation:pulse 1.6s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.25;}}
+
+  h1{
+    font-size:clamp(2.4rem, 7vw, 5.2rem);
+    line-height:1.05;
+    font-weight:700;
+    letter-spacing:1px;
+    max-width:980px;
+  }
+  h1 .accent{
+    color:var(--cyan);
+    text-shadow:0 0 25px rgba(78,232,245,0.6);
+  }
+  .hero p.lead{
+    max-width:620px;
+    color:var(--text-dim);
+    font-size:1.05rem;
+    line-height:1.7;
+  }
+  .hero-actions{display:flex; gap:18px; flex-wrap:wrap; justify-content:center; margin-top:6px;}
+
+  .btn{
+    font-family:var(--mono); font-size:0.85rem; letter-spacing:2px;
+    padding:16px 34px; border-radius:4px; border:1px solid transparent;
+    cursor:pointer; transition:all .25s; display:inline-flex; align-items:center; gap:10px;
+  }
+  .btn-primary{
+    background:var(--cyan); color:#031015; font-weight:700;
+    box-shadow:0 0 25px rgba(78,232,245,0.35);
+  }
+  .btn-primary:hover{transform:translateY(-2px); box-shadow:0 0 40px rgba(78,232,245,0.6);}
+  .btn-ghost{
+    border-color:var(--cyan-dim); color:var(--text);
+  }
+  .btn-ghost:hover{border-color:var(--cyan); color:var(--cyan); transform:translateY(-2px);}
+
+  .scan-line{
+    margin-top:50px; width:1px; height:60px; background:linear-gradient(var(--cyan), transparent);
+    opacity:.6;
+  }
+
+  /* ===== SECTION GENERIC ===== */
+  section{padding:100px 5%; position:relative;}
+  .section-head{max-width:760px; margin:0 auto 60px; text-align:center;}
+  .section-head .eyebrow{margin-bottom:18px;}
+  .section-head h2{font-size:clamp(1.8rem,4vw,2.8rem); font-weight:700; letter-spacing:1px;}
+  .section-head h2 .accent{color:var(--cyan);}
+  .section-head p{color:var(--text-dim); margin-top:14px; font-size:1rem; line-height:1.7;}
+
+  /* ===== SERVICES ===== */
+  .services-grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr));
+    gap:1px; max-width:1200px; margin:0 auto;
+    border:1px solid var(--line);
+    background:var(--line);
+  }
+  .service-card{
+    background:var(--panel);
+    padding:34px 28px;
+    transition:background .3s, transform .3s;
+    position:relative;
+    overflow:hidden;
+  }
+  .service-card:hover{background:#0f2630;}
+  .service-card .num{
+    font-family:var(--mono); font-size:0.75rem; color:var(--cyan-dim); letter-spacing:2px;
+  }
+  .service-icon{
+    font-size:1.8rem; margin:18px 0 10px; display:block; color:var(--cyan);
+    filter:drop-shadow(0 0 10px rgba(78,232,245,0.5));
+  }
+  .service-card h3{font-size:1.15rem; margin-bottom:10px; letter-spacing:0.5px;}
+  .service-card p{color:var(--text-dim); font-size:0.92rem; line-height:1.65;}
+  .service-card::before{
+    content:""; position:absolute; left:0; top:0; width:3px; height:0; background:var(--cyan);
+    transition:height .3s;
+  }
+  .service-card:hover::before{height:100%;}
+
+  /* ===== WHY US / STATS ===== */
+  .stats{
+    max-width:1100px; margin:0 auto;
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:30px;
+    text-align:center;
+  }
+  .stat-num{
+    font-family:var(--mono); font-size:clamp(2.2rem,5vw,3.4rem); font-weight:700; color:var(--cyan);
+    text-shadow:0 0 20px rgba(78,232,245,0.4);
+  }
+  .stat-label{color:var(--text-dim); font-size:0.85rem; letter-spacing:1px; margin-top:8px; text-transform:uppercase;}
+
+  /* ===== PROCESS ===== */
+  .process{
+    max-width:1000px; margin:0 auto;
+    display:flex; flex-direction:column; gap:0;
+    border-left:1px solid var(--line);
+  }
+  .process-step{
+    display:flex; gap:24px; padding:28px 0 28px 36px; position:relative;
+  }
+  .process-step::before{
+    content:""; position:absolute; left:-5px; top:34px; width:9px; height:9px; border-radius:50%;
+    background:var(--bg); border:2px solid var(--cyan); box-shadow:0 0 10px rgba(78,232,245,0.6);
+  }
+  .process-step .tag{
+    font-family:var(--mono); font-size:0.75rem; color:var(--cyan); letter-spacing:2px; min-width:90px; padding-top:4px;
+  }
+  .process-step h4{font-size:1.15rem; margin-bottom:6px;}
+  .process-step p{color:var(--text-dim); font-size:0.92rem; line-height:1.6; max-width:640px;}
+
+  /* ===== CONTACT ===== */
+  .contact-box{
+    max-width:880px; margin:0 auto;
+    border:1px solid var(--line);
+    background:var(--panel);
+    border-radius:8px;
+    padding:60px 40px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .contact-box::before{
+    content:""; position:absolute; inset:0;
+    background: radial-gradient(circle at 50% 0%, rgba(78,232,245,0.12), transparent 60%);
+    pointer-events:none;
+  }
+  .contact-box h2{font-size:clamp(1.8rem,4vw,2.6rem); margin-bottom:14px;}
+  .contact-box h2 .accent{color:var(--cyan);}
+  .contact-box p{color:var(--text-dim); max-width:500px; margin:0 auto 30px; line-height:1.7;}
+  .contact-channels{display:flex; gap:18px; flex-wrap:wrap; justify-content:center;}
+
+  /* ===== FOOTER ===== */
+  footer{
+    border-top:1px solid var(--line);
+    padding:40px 5%;
+    display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:20px;
+    font-size:0.85rem; color:var(--text-dim);
+  }
+  footer .logo-group img{width:32px; height:32px;}
+  .footer-links{display:flex; gap:24px;}
+  .footer-links a:hover{color:var(--cyan);}
+
+  /* reveal animation */
+  .reveal{opacity:0; transform:translateY(30px); transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1; transform:translateY(0);}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none!important; transition:none!important;}
+    .reveal{opacity:1; transform:none;}
+  }
+
+  /* ===== MOBILE ===== */
+  @media (max-width:860px){
+    nav{
+      position:fixed; top:73px; left:0; right:0;
+      flex-direction:column; gap:0;
+      background:rgba(5,10,14,0.97);
+      border-bottom:1px solid var(--line);
+      max-height:0; overflow:hidden;
+      transition:max-height .3s ease;
+    }
+    nav.open{max-height:340px;}
+    nav a{padding:18px 5%; border-bottom:1px solid var(--line); width:100%;}
+    nav a::after{display:none;}
+    .nav-cta{margin:18px 5%; text-align:center;}
+    .menu-toggle{
+      display:flex; flex-direction:column; gap:5px; cursor:pointer; background:none; border:none; padding:8px;
+    }
+    .menu-toggle span{width:24px; height:2px; background:var(--cyan); display:block;}
+    .hero{padding-top:120px;}
+    .process-step{flex-direction:column; gap:6px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo-group">
+      <img src="logo.png" alt="Logo GG Tech">
+      <div class="logo-text">GG TECH<span>SMART SOLUTION</span></div>
+    </div>
+    <nav id="nav">
+      <a href="#servicos">Serviços</a>
+      <a href="#processo">Como trabalhamos</a>
+      <a href="#sobre">Por que a GG Tech</a>
+      <a href="#contato" class="nav-cta">Falar no WhatsApp</a>
+    </nav>
+    <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <img src="logo.png" alt="GG Tech - Smart Solution" class="hero-logo">
+    <div class="eyebrow"><span class="dot"></span> SUPORTE TÉCNICO ONLINE AGORA</div>
+    <h1>Tecnologia que <span class="accent">protege</span>, conserta e <span class="accent">acelera</span> o seu negócio.</h1>
+    <p class="lead">
+      Da formatação do seu notebook ao desenvolvimento do seu sistema SaaS. A GG Tech é o time de T.I. que resolve, blinda e automatiza — tudo em um só lugar.
+    </p>
+    <div class="hero-actions">
+      <a href="https://wa.me/5511999070361" class="btn btn-primary" target="_blank" rel="noopener">📲 Chamar no WhatsApp</a>
+      <a href="#servicos" class="btn btn-ghost">Ver serviços</a>
+    </div>
+    <div class="scan-line"></div>
+  </section>
+
+  <!-- SERVIÇOS -->
+  <section id="servicos">
+    <div class="section-head reveal">
+      <div class="eyebrow">NOSSO ARSENAL</div>
+      <h2>Soluções completas, de <span class="accent">ponta a ponta</span></h2>
+      <p>Não somos só "conserto de PC". Somos infraestrutura, segurança e desenvolvimento — pensados para crescer junto com você.</p>
+    </div>
+
+    <div class="services-grid reveal">
+      <div class="service-card">
+        <span class="num">01 / DEV</span>
+        <span class="service-icon">⚙️</span>
+        <h3>Criação de Sistemas SaaS</h3>
+        <p>Plataformas web sob assinatura, sob medida para o seu modelo de negócio: gestão, agendamento, vendas, controle financeiro e muito mais.</p>
+      </div>
+      <div class="service-card">
+        <span class="num">02 / DEV</span>
+        <span class="service-icon">🌐</span>
+        <h3>Criação de Sites</h3>
+        <p>Sites institucionais, landing pages e lojas virtuais — rápidos, modernos e responsivos, prontos para converter visitantes em clientes.</p>
+      </div>
+      <div class="service-card">
+        <span class="num">03 / SUPORTE</span>
+        <span class="service-icon">🛠️</span>
+        <h3>Reparo de Computadores e Celulares</h3>
+        <p>Diagnóstico, troca de peças, limpeza interna, manutenção de placas e recuperação de aparelhos que "não ligam mais".</p>
+      </div>
+      <div class="service-card">
+        <span class="num">04 / SEGURANÇA</span>
+        <span class="service-icon">🛡️</span>
+        <h3>Cibersegurança</h3>
+        <p>Proteção contra vírus, ransomware e invasões. Auditoria de segurança, firewall, backups e treinamento da equipe contra golpes.</p>
+      </div>
+      <div class="service-card">
+        <span class="num">05 / SUPORTE</span>
+        <span class="service-icon">🎧</span>
+        <h3>Suporte Técnico</h3>
+        <p>Atendimento remoto e presencial para empresas e residências. Resolvemos problemas de rede, sistema, e-mail e impressoras no mesmo dia.</p>
+      </div>
+      <div class="service-card">
+        <span class="num">06 / SUPORTE</span>
+        <span class="service-icon">💾</span>
+        <h3>Formatação e Otimização</h3>
+        <p>Formatação completa, reinstalação de sistema e programas, otimização de performance e backup seguro dos seus arquivos.</p>
+      </div>
+      <div class="service-card">
+        <span class="num">07 / AUTOMAÇÃO</span>
+        <span class="service-icon">🤖</span>
+        <h3>Automação de Processos</h3>
+        <p>Robôs e integrações que eliminam tarefas repetitivas: emissão de notas, respostas automáticas, planilhas inteligentes e fluxos no WhatsApp.</p>
+      </div>
+      <div class="service-card">
+        <span class="num">08 / INFRA</span>
+        <span class="service-icon">🖧</span>
+        <h3>Redes e Infraestrutura</h3>
+        <p>Configuração de redes Wi-Fi, cabeamento estruturado, servidores locais e armazenamento em nuvem para sua empresa.</p>
+      </div>
+      <div class="service-card">
+        <span class="num">09 / CONSULTORIA</span>
+        <span class="service-icon">📈</span>
+        <h3>Consultoria em T.I.</h3>
+        <p>Diagnóstico tecnológico completo: identificamos gastos desnecessários e indicamos as melhores soluções para o seu orçamento.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- POR QUE A GG TECH -->
+  <section id="sobre">
+    <div class="section-head reveal">
+      <div class="eyebrow">POR QUE ESCOLHER A GG TECH</div>
+      <h2>Resultado de quem entende de <span class="accent">verdade</span></h2>
+      <p>Unimos a velocidade de um suporte técnico de bairro com o nível de uma software house — sem o preço (ou a demora) de uma.</p>
+    </div>
+    <div class="stats reveal">
+      <div>
+        <div class="stat-num">100%</div>
+        <div class="stat-label">Diagnóstico transparente</div>
+      </div>
+      <div>
+        <div class="stat-num">24h</div>
+        <div class="stat-label">Tempo médio de resposta</div>
+      </div>
+      <div>
+        <div class="stat-num">+10</div>
+        <div class="stat-label">Serviços especializados</div>
+      </div>
+      <div>
+        <div class="stat-num">360º</div>
+        <div class="stat-label">Cobertura: dev, redes e segurança</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESSO -->
+  <section id="processo">
+    <div class="section-head reveal">
+      <div class="eyebrow">COMO TRABALHAMOS</div>
+      <h2>Do problema à <span class="accent">solução</span>, sem enrolação</h2>
+    </div>
+    <div class="process reveal">
+      <div class="process-step">
+        <div class="tag">PASSO 01</div>
+        <div>
+          <h4>Você nos chama</h4>
+          <p>Manda uma mensagem no WhatsApp explicando o problema ou a ideia — sistema, site, equipamento com defeito, rede lenta, o que for.</p>
+        </div>
+      </div>
+      <div class="process-step">
+        <div class="tag">PASSO 02</div>
+        <div>
+          <h4>Diagnóstico e orçamento</h4>
+          <p>Avaliamos remotamente ou presencialmente e te damos um orçamento claro, sem letras pequenas e sem custo escondido.</p>
+        </div>
+      </div>
+      <div class="process-step">
+        <div class="tag">PASSO 03</div>
+        <div>
+          <h4>Execução</h4>
+          <p>Colocamos a mão na massa: código, peças, configurações — você acompanha o andamento em tempo real.</p>
+        </div>
+      </div>
+      <div class="process-step">
+        <div class="tag">PASSO 04</div>
+        <div>
+          <h4>Entrega e suporte contínuo</h4>
+          <p>Entregamos tudo testado e funcionando, com explicação de uso e suporte pós-entrega para o que precisar.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTATO -->
+  <section id="contato">
+    <div class="contact-box reveal">
+      <div class="eyebrow" style="margin-bottom:18px;">VAMOS RESOLVER ISSO AGORA</div>
+      <h2>Seu problema de T.I. acaba <span class="accent">hoje</span></h2>
+      <p>Fale agora com a GG Tech e receba um diagnóstico rápido e sem compromisso. Atendimento ágil para empresas e residências.</p>
+      <div class="contact-channels">
+        <a href="https://wa.me/5511999070361" class="btn btn-primary" target="_blank" rel="noopener">📲 (11) 99907-0361 — WhatsApp</a>
+        <a href="tel:+5511999070361" class="btn btn-ghost">📞 Ligar agora</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="logo-group">
+      <img src="logo.png" alt="GG Tech">
+      <div class="logo-text" style="font-size:1rem;">GG TECH<span>SMART SOLUTION</span></div>
+    </div>
+    <div class="footer-links">
+      <a href="#servicos">Serviços</a>
+      <a href="#processo">Processo</a>
+      <a href="#contato">Contato</a>
+    </div>
+    <div>© 2026 GG Tech — Smart Solution. Todos os direitos reservados.</div>
+  </footer>
+
+</div>
+
+<script>
+  // mobile menu
+  const toggle = document.getElementById('menuToggle');
+  const nav = document.getElementById('nav');
+  toggle.addEventListener('click', () => {
+    nav.classList.toggle('open');
+  });
+  nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => nav.classList.remove('open')));
+
+  // reveal on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('in'); });
+  }, {threshold:0.15});
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
