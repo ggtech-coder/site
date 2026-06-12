@@ -8,15 +8,16 @@
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg: #050a0e;
+    --bg: #03070a;
     --bg-2: #0a141c;
-    --panel: #0d1b24;
+    --panel: #0a1820;
     --cyan: #4ee8f5;
-    --cyan-dim: #1c5560;
+    --cyan-soft: rgba(78,232,245,0.5);
+    --cyan-dim: #1c4550;
     --red: #ff3b3b;
     --text: #d9f4f7;
     --text-dim: #6f95a0;
-    --line: rgba(78,232,245,0.18);
+    --line: rgba(78,232,245,0.16);
     --mono: 'JetBrains Mono', monospace;
     --display: 'Chakra Petch', sans-serif;
   }
@@ -27,23 +28,48 @@
     color:var(--text);
     font-family:var(--display);
     overflow-x:hidden;
+    cursor:none;
   }
+  ::selection{background:var(--cyan); color:#03070a;}
 
-  /* background grid texture */
-  body::before{
-    content:"";
-    position:fixed; inset:0;
+  /* ===== custom crosshair cursor ===== */
+  .crosshair{
+    position:fixed; top:0; left:0; width:34px; height:34px;
+    pointer-events:none; z-index:9999; mix-blend-mode:difference;
+    transform:translate(-50%,-50%);
+    transition:width .15s, height .15s, opacity .2s;
+  }
+  .crosshair::before, .crosshair::after{
+    content:""; position:absolute; background:var(--cyan);
+  }
+  .crosshair::before{ left:50%; top:0; width:1px; height:100%; transform:translateX(-50%);}
+  .crosshair::after{ top:50%; left:0; height:1px; width:100%; transform:translateY(-50%);}
+  .crosshair .ring{
+    position:absolute; inset:6px; border:1px solid var(--cyan); border-radius:50%;
+  }
+  @media (max-width:860px){ .crosshair{display:none;} body{cursor:auto;} }
+  @media (hover:none){ .crosshair{display:none;} body{cursor:auto;} }
+
+  /* ===== background layers ===== */
+  .bg-grid{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
     background-image:
-      linear-gradient(rgba(78,232,245,0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(78,232,245,0.04) 1px, transparent 1px);
-    background-size: 42px 42px;
-    pointer-events:none;
-    z-index:0;
-    mask-image: radial-gradient(ellipse at top, black 0%, transparent 70%);
+      linear-gradient(rgba(78,232,245,0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(78,232,245,0.045) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 0%, transparent 75%);
   }
-
+  .bg-glow{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background: radial-gradient(circle 600px at var(--mx,50%) var(--my,20%), rgba(78,232,245,0.07), transparent 70%);
+    transition: background .1s;
+  }
+  .scanlines{
+    position:fixed; inset:0; z-index:2; pointer-events:none; opacity:.5;
+    background:repeating-linear-gradient(to bottom, transparent 0 2px, rgba(0,0,0,0.18) 2px 4px);
+    mix-blend-mode:overlay;
+  }
   .wrap{position:relative; z-index:1;}
-
   a{color:inherit; text-decoration:none;}
 
   /* ===== HEADER ===== */
@@ -51,19 +77,20 @@
     position:fixed; top:0; left:0; right:0;
     z-index:100;
     display:flex; align-items:center; justify-content:space-between;
-    padding:16px 5%;
-    background:rgba(5,10,14,0.7);
+    padding:14px 5%;
+    background:rgba(3,7,10,0.7);
     backdrop-filter: blur(10px);
     border-bottom:1px solid var(--line);
   }
   .logo-group{display:flex; align-items:center; gap:12px;}
   .logo-group img{width:42px; height:42px; border-radius:8px; box-shadow:0 0 18px rgba(78,232,245,0.4);}
-  .logo-text{font-family:var(--display); font-weight:700; font-size:1.15rem; letter-spacing:2px; line-height:1.1;}
-  .logo-text span{display:block; font-family:var(--mono); font-size:0.6rem; font-weight:400; letter-spacing:3px; color:var(--cyan); margin-top:2px;}
+  .logo-text{font-family:var(--display); font-weight:700; font-size:1.1rem; letter-spacing:3px; line-height:1.1;}
+  .logo-text span{display:block; font-family:var(--mono); font-size:0.58rem; font-weight:400; letter-spacing:3px; color:var(--cyan); margin-top:3px;}
 
-  nav{display:flex; gap:32px; font-size:0.85rem; letter-spacing:1px;}
+  nav{display:flex; align-items:center; gap:32px; font-size:0.82rem; letter-spacing:1.5px;}
   nav a{color:var(--text-dim); transition:color .25s; position:relative; padding-bottom:4px;}
   nav a:hover, nav a:focus-visible{color:var(--cyan);}
+  nav a:not(.nav-cta)::before{content:'// '; color:var(--cyan-dim);}
   nav a::after{
     content:""; position:absolute; left:0; bottom:0; width:0; height:1px; background:var(--cyan);
     transition:width .25s;
@@ -71,10 +98,11 @@
   nav a:hover::after{width:100%;}
 
   .nav-cta{
-    border:1px solid var(--cyan); padding:8px 18px; border-radius:4px; color:var(--cyan)!important; font-family:var(--mono);
+    border:1px solid var(--cyan); padding:9px 20px; border-radius:2px; color:var(--cyan)!important; font-family:var(--mono);
   }
+  .nav-cta::before{content:none;}
   .nav-cta::after{display:none;}
-  .nav-cta:hover{background:var(--cyan); color:#031015!important;}
+  .nav-cta:hover{background:var(--cyan); color:#031015!important; box-shadow:0 0 20px var(--cyan-soft);}
 
   .menu-toggle{display:none;}
 
@@ -82,63 +110,121 @@
   .hero{
     min-height:100vh;
     display:flex; align-items:center; justify-content:center;
-    padding:140px 5% 80px;
+    padding:140px 5% 60px;
     position:relative;
     text-align:center;
-    flex-direction:column;
-    gap:28px;
   }
-  .hero::after{
-    content:"";
+  .hero-inner{
+    display:flex; flex-direction:column; align-items:center; gap:26px; max-width:1000px;
+    position:relative;
+  }
+
+  /* HUD reticle around logo - signature element */
+  .reticle{
+    position:relative; width:240px; height:240px; margin-bottom:6px;
+  }
+  .reticle img{
+    width:118px; height:118px; border-radius:14px;
     position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-    width:900px; height:900px;
-    background: radial-gradient(circle, rgba(78,232,245,0.10) 0%, transparent 60%);
-    z-index:-1;
-  }
-  .hero-logo{
-    width:170px; height:170px; border-radius:24px;
-    box-shadow:0 0 60px rgba(78,232,245,0.35), 0 0 0 1px var(--line);
+    box-shadow:0 0 50px rgba(78,232,245,0.35);
+    z-index:2;
     animation: float 6s ease-in-out infinite;
   }
-  @keyframes float{
-    0%,100%{transform:translateY(0);}
-    50%{transform:translateY(-12px);}
+  @keyframes float{ 0%,100%{transform:translate(-50%,-50%);} 50%{transform:translate(-50%,calc(-50% - 10px));} }
+
+  .reticle svg{ position:absolute; inset:0; width:100%; height:100%; }
+  .reticle .ring-outer{
+    fill:none; stroke:var(--cyan); stroke-width:1; opacity:.55;
+    transform-origin:120px 120px;
+    animation: spin 30s linear infinite;
   }
+  .reticle .ring-dash{
+    fill:none; stroke:var(--cyan); stroke-width:1.5; stroke-dasharray:6 10; opacity:.4;
+    transform-origin:120px 120px;
+    animation: spin-rev 50s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  @keyframes spin-rev{ to{ transform:rotate(-360deg); } }
+  .reticle .tick{ stroke:var(--cyan); stroke-width:2; opacity:.8; }
+  .reticle .scan{
+    fill:none; stroke:var(--red); stroke-width:2;
+    transform-origin:120px 120px;
+    animation: scan-rotate 4s linear infinite;
+    filter: drop-shadow(0 0 6px var(--red));
+  }
+  @keyframes scan-rotate{ to{ transform:rotate(360deg); } }
+  .reticle .corner{ stroke:var(--cyan); stroke-width:2; fill:none; }
+
   .eyebrow{
-    font-family:var(--mono); font-size:0.78rem; letter-spacing:4px; color:var(--cyan);
-    border:1px solid var(--cyan-dim); padding:6px 16px; border-radius:30px;
+    font-family:var(--mono); font-size:0.75rem; letter-spacing:4px; color:var(--cyan);
+    border:1px solid var(--cyan-dim); padding:7px 18px; border-radius:30px;
     display:inline-flex; align-items:center; gap:10px;
+    background:rgba(78,232,245,0.03);
   }
   .eyebrow .dot{width:7px; height:7px; background:var(--red); border-radius:50%; box-shadow:0 0 8px var(--red); animation:pulse 1.6s infinite;}
-  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.25;}}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.2;}}
 
   h1{
-    font-size:clamp(2.4rem, 7vw, 5.2rem);
-    line-height:1.05;
+    font-size:clamp(2.3rem, 6.5vw, 4.6rem);
+    line-height:1.08;
     font-weight:700;
     letter-spacing:1px;
-    max-width:980px;
+    max-width:920px;
   }
   h1 .accent{
     color:var(--cyan);
     text-shadow:0 0 25px rgba(78,232,245,0.6);
+    position:relative;
+    display:inline-block;
   }
+
+  /* glitch effect on a single accent word */
+  .glitch{ position:relative; }
+  .glitch::before, .glitch::after{
+    content:attr(data-text);
+    position:absolute; left:0; top:0; width:100%; height:100%;
+    color:var(--cyan); background:var(--bg);
+    clip-path: inset(0 0 0 0);
+    overflow:hidden;
+  }
+  .glitch::before{
+    text-shadow: 2px 0 var(--red);
+    animation: glitch-1 6s infinite;
+  }
+  .glitch::after{
+    text-shadow: -2px 0 #2effff;
+    animation: glitch-2 6s infinite;
+  }
+  @keyframes glitch-1{
+    0%, 92%, 100% { clip-path: inset(0 0 100% 0); transform:translate(0); }
+    93% { clip-path: inset(20% 0 60% 0); transform:translate(-3px,0); }
+    95% { clip-path: inset(60% 0 10% 0); transform:translate(3px,0); }
+    97% { clip-path: inset(10% 0 70% 0); transform:translate(-2px,0); }
+  }
+  @keyframes glitch-2{
+    0%, 92%, 100% { clip-path: inset(0 0 100% 0); transform:translate(0); }
+    93% { clip-path: inset(70% 0 5% 0); transform:translate(3px,0); }
+    95% { clip-path: inset(15% 0 65% 0); transform:translate(-3px,0); }
+    97% { clip-path: inset(50% 0 30% 0); transform:translate(2px,0); }
+  }
+
   .hero p.lead{
-    max-width:620px;
+    max-width:600px;
     color:var(--text-dim);
-    font-size:1.05rem;
+    font-size:1.02rem;
     line-height:1.7;
   }
-  .hero-actions{display:flex; gap:18px; flex-wrap:wrap; justify-content:center; margin-top:6px;}
+  .hero-actions{display:flex; gap:18px; flex-wrap:wrap; justify-content:center; margin-top:4px;}
 
   .btn{
-    font-family:var(--mono); font-size:0.85rem; letter-spacing:2px;
-    padding:16px 34px; border-radius:4px; border:1px solid transparent;
-    cursor:pointer; transition:all .25s; display:inline-flex; align-items:center; gap:10px;
+    font-family:var(--mono); font-size:0.82rem; letter-spacing:2px;
+    padding:16px 32px; border-radius:2px; border:1px solid transparent;
+    cursor:none; transition:all .25s; display:inline-flex; align-items:center; gap:10px;
+    position:relative;
   }
   .btn-primary{
     background:var(--cyan); color:#031015; font-weight:700;
-    box-shadow:0 0 25px rgba(78,232,245,0.35);
+    box-shadow:0 0 25px rgba(78,232,245,0.3);
   }
   .btn-primary:hover{transform:translateY(-2px); box-shadow:0 0 40px rgba(78,232,245,0.6);}
   .btn-ghost{
@@ -146,88 +232,133 @@
   }
   .btn-ghost:hover{border-color:var(--cyan); color:var(--cyan); transform:translateY(-2px);}
 
-  .scan-line{
-    margin-top:50px; width:1px; height:60px; background:linear-gradient(var(--cyan), transparent);
-    opacity:.6;
+  /* terminal box under hero */
+  .terminal{
+    margin-top:10px; width:100%; max-width:560px;
+    border:1px solid var(--line); border-radius:6px; background:rgba(10,24,32,0.6);
+    text-align:left; overflow:hidden;
+    box-shadow:0 0 30px rgba(0,0,0,0.4);
   }
+  .terminal-head{
+    display:flex; align-items:center; gap:8px; padding:9px 14px; border-bottom:1px solid var(--line);
+    font-family:var(--mono); font-size:0.7rem; color:var(--text-dim); letter-spacing:2px;
+  }
+  .terminal-head .tdot{width:9px; height:9px; border-radius:50%; background:var(--cyan-dim);}
+  .terminal-body{
+    padding:16px 18px; font-family:var(--mono); font-size:0.82rem; line-height:1.9; color:var(--cyan);
+    min-height:118px;
+  }
+  .terminal-body .line-dim{ color:var(--text-dim); }
+  .terminal-body .cursor-blink{
+    display:inline-block; width:8px; height:1em; background:var(--cyan); margin-left:4px;
+    animation: blink 1s step-end infinite; vertical-align:text-bottom;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
 
   /* ===== SECTION GENERIC ===== */
-  section{padding:100px 5%; position:relative;}
+  section{padding:110px 5%; position:relative;}
   .section-head{max-width:760px; margin:0 auto 60px; text-align:center;}
   .section-head .eyebrow{margin-bottom:18px;}
   .section-head h2{font-size:clamp(1.8rem,4vw,2.8rem); font-weight:700; letter-spacing:1px;}
   .section-head h2 .accent{color:var(--cyan);}
   .section-head p{color:var(--text-dim); margin-top:14px; font-size:1rem; line-height:1.7;}
 
-  /* ===== SERVICES ===== */
+  /* divider made of circuit ticks */
+  .circuit-divider{
+    max-width:1200px; margin:0 auto; height:1px; background:var(--line);
+    position:relative;
+  }
+  .circuit-divider::before, .circuit-divider::after{
+    content:""; position:absolute; top:-3px; width:7px; height:7px; border:1px solid var(--cyan); background:var(--bg); border-radius:1px;
+  }
+  .circuit-divider::before{ left:0; }
+  .circuit-divider::after{ right:0; }
+
+  /* ===== SERVICES - HUD module cards ===== */
   .services-grid{
     display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr));
-    gap:1px; max-width:1200px; margin:0 auto;
-    border:1px solid var(--line);
-    background:var(--line);
+    gap:22px; max-width:1200px; margin:0 auto;
   }
   .service-card{
-    background:var(--panel);
-    padding:34px 28px;
-    transition:background .3s, transform .3s;
     position:relative;
-    overflow:hidden;
+    background:var(--panel);
+    border:1px solid var(--line);
+    padding:30px 26px;
+    transition:transform .3s, border-color .3s, background .3s;
   }
-  .service-card:hover{background:#0f2630;}
+  .service-card:hover{
+    transform:translateY(-4px);
+    border-color:var(--cyan-soft);
+    background:#0d2027;
+  }
+  /* corner brackets - reticle motif echoed */
+  .service-card::before, .service-card::after,
+  .service-card .br1, .service-card .br2{
+    content:""; position:absolute; width:14px; height:14px;
+    border-color:var(--cyan); opacity:0; transition:opacity .3s;
+  }
+  .service-card::before{ top:-1px; left:-1px; border-top:2px solid; border-left:2px solid; }
+  .service-card::after{ bottom:-1px; right:-1px; border-bottom:2px solid; border-right:2px solid; }
+  .service-card .br1{ top:-1px; right:-1px; border-top:2px solid var(--cyan); border-right:2px solid var(--cyan); }
+  .service-card .br2{ bottom:-1px; left:-1px; border-bottom:2px solid var(--cyan); border-left:2px solid var(--cyan); }
+  .service-card:hover::before, .service-card:hover::after,
+  .service-card:hover .br1, .service-card:hover .br2{ opacity:1; }
+
   .service-card .num{
-    font-family:var(--mono); font-size:0.75rem; color:var(--cyan-dim); letter-spacing:2px;
+    font-family:var(--mono); font-size:0.72rem; color:var(--cyan-dim); letter-spacing:2px;
+    display:flex; justify-content:space-between; align-items:center;
   }
+  .service-card .num .status{ color:var(--text-dim); }
+  .service-card:hover .num .status{ color:var(--cyan); }
   .service-icon{
-    font-size:1.8rem; margin:18px 0 10px; display:block; color:var(--cyan);
+    font-size:1.7rem; margin:18px 0 10px; display:block; color:var(--cyan);
     filter:drop-shadow(0 0 10px rgba(78,232,245,0.5));
   }
-  .service-card h3{font-size:1.15rem; margin-bottom:10px; letter-spacing:0.5px;}
-  .service-card p{color:var(--text-dim); font-size:0.92rem; line-height:1.65;}
-  .service-card::before{
-    content:""; position:absolute; left:0; top:0; width:3px; height:0; background:var(--cyan);
-    transition:height .3s;
-  }
-  .service-card:hover::before{height:100%;}
+  .service-card h3{font-size:1.12rem; margin-bottom:10px; letter-spacing:0.5px;}
+  .service-card p{color:var(--text-dim); font-size:0.9rem; line-height:1.65;}
 
   /* ===== WHY US / STATS ===== */
   .stats{
     max-width:1100px; margin:0 auto;
     display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-    gap:30px;
-    text-align:center;
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+  }
+  .stat{
+    background:var(--bg); padding:36px 20px; text-align:center;
   }
   .stat-num{
-    font-family:var(--mono); font-size:clamp(2.2rem,5vw,3.4rem); font-weight:700; color:var(--cyan);
+    font-family:var(--mono); font-size:clamp(2.2rem,5vw,3.2rem); font-weight:700; color:var(--cyan);
     text-shadow:0 0 20px rgba(78,232,245,0.4);
   }
-  .stat-label{color:var(--text-dim); font-size:0.85rem; letter-spacing:1px; margin-top:8px; text-transform:uppercase;}
+  .stat-label{color:var(--text-dim); font-size:0.8rem; letter-spacing:1.5px; margin-top:8px; text-transform:uppercase;}
 
   /* ===== PROCESS ===== */
   .process{
     max-width:1000px; margin:0 auto;
     display:flex; flex-direction:column; gap:0;
-    border-left:1px solid var(--line);
   }
   .process-step{
-    display:flex; gap:24px; padding:28px 0 28px 36px; position:relative;
+    display:grid; grid-template-columns:120px 1fr; gap:24px; padding:30px 0;
+    border-bottom:1px solid var(--line);
+    align-items:start;
   }
-  .process-step::before{
-    content:""; position:absolute; left:-5px; top:34px; width:9px; height:9px; border-radius:50%;
-    background:var(--bg); border:2px solid var(--cyan); box-shadow:0 0 10px rgba(78,232,245,0.6);
-  }
+  .process-step:first-child{ border-top:1px solid var(--line); }
   .process-step .tag{
-    font-family:var(--mono); font-size:0.75rem; color:var(--cyan); letter-spacing:2px; min-width:90px; padding-top:4px;
+    font-family:var(--mono); font-size:1.6rem; color:var(--cyan-dim); letter-spacing:1px; font-weight:700;
+    transition:color .3s;
   }
-  .process-step h4{font-size:1.15rem; margin-bottom:6px;}
+  .process-step:hover .tag{ color:var(--cyan); text-shadow:0 0 14px rgba(78,232,245,0.5); }
+  .process-step h4{font-size:1.18rem; margin-bottom:6px;}
   .process-step p{color:var(--text-dim); font-size:0.92rem; line-height:1.6; max-width:640px;}
 
   /* ===== CONTACT ===== */
   .contact-box{
-    max-width:880px; margin:0 auto;
+    max-width:900px; margin:0 auto;
     border:1px solid var(--line);
     background:var(--panel);
-    border-radius:8px;
-    padding:60px 40px;
+    padding:64px 40px;
     text-align:center;
     position:relative;
     overflow:hidden;
@@ -237,19 +368,28 @@
     background: radial-gradient(circle at 50% 0%, rgba(78,232,245,0.12), transparent 60%);
     pointer-events:none;
   }
+  .corner-tr, .corner-bl, .corner-br, .corner-tl{
+    position:absolute; width:16px; height:16px;
+  }
+  .corner-tl{ top:14px; left:14px; border-top:2px solid var(--cyan); border-left:2px solid var(--cyan); }
+  .corner-tr{ top:14px; right:14px; border-top:2px solid var(--cyan); border-right:2px solid var(--cyan); }
+  .corner-bl{ bottom:14px; left:14px; border-bottom:2px solid var(--cyan); border-left:2px solid var(--cyan); }
+  .corner-br{ bottom:14px; right:14px; border-bottom:2px solid var(--cyan); border-right:2px solid var(--cyan); }
+
   .contact-box h2{font-size:clamp(1.8rem,4vw,2.6rem); margin-bottom:14px;}
   .contact-box h2 .accent{color:var(--cyan);}
-  .contact-box p{color:var(--text-dim); max-width:500px; margin:0 auto 30px; line-height:1.7;}
+  .contact-box p{color:var(--text-dim); max-width:520px; margin:0 auto 32px; line-height:1.7;}
   .contact-channels{display:flex; gap:18px; flex-wrap:wrap; justify-content:center;}
 
   /* ===== FOOTER ===== */
   footer{
     border-top:1px solid var(--line);
-    padding:40px 5%;
+    padding:36px 5%;
     display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:20px;
-    font-size:0.85rem; color:var(--text-dim);
+    font-size:0.82rem; color:var(--text-dim);
+    font-family:var(--mono);
   }
-  footer .logo-group img{width:32px; height:32px;}
+  footer .logo-group img{width:30px; height:30px;}
   .footer-links{display:flex; gap:24px;}
   .footer-links a:hover{color:var(--cyan);}
 
@@ -265,9 +405,9 @@
   /* ===== MOBILE ===== */
   @media (max-width:860px){
     nav{
-      position:fixed; top:73px; left:0; right:0;
-      flex-direction:column; gap:0;
-      background:rgba(5,10,14,0.97);
+      position:fixed; top:69px; left:0; right:0;
+      flex-direction:column; gap:0; align-items:stretch;
+      background:rgba(3,7,10,0.97);
       border-bottom:1px solid var(--line);
       max-height:0; overflow:hidden;
       transition:max-height .3s ease;
@@ -280,12 +420,20 @@
       display:flex; flex-direction:column; gap:5px; cursor:pointer; background:none; border:none; padding:8px;
     }
     .menu-toggle span{width:24px; height:2px; background:var(--cyan); display:block;}
-    .hero{padding-top:120px;}
-    .process-step{flex-direction:column; gap:6px;}
+    .hero{padding-top:110px;}
+    .reticle{width:190px; height:190px;}
+    .reticle img{width:96px; height:96px;}
+    .process-step{ grid-template-columns:60px 1fr; }
+    .process-step .tag{ font-size:1.2rem; }
   }
 </style>
 </head>
 <body>
+<div class="crosshair" id="crosshair"><div class="ring"></div></div>
+<div class="bg-grid"></div>
+<div class="bg-glow" id="bgGlow"></div>
+<div class="scanlines"></div>
+
 <div class="wrap">
 
   <!-- HEADER -->
@@ -307,18 +455,51 @@
 
   <!-- HERO -->
   <section class="hero">
-    <img src="logo.png" alt="GG Tech - Smart Solution" class="hero-logo">
-    <div class="eyebrow"><span class="dot"></span> SUPORTE TÉCNICO ONLINE AGORA</div>
-    <h1>Tecnologia que <span class="accent">protege</span>, conserta e <span class="accent">acelera</span> o seu negócio.</h1>
-    <p class="lead">
-      Da formatação do seu notebook ao desenvolvimento do seu sistema SaaS. A GG Tech é o time de T.I. que resolve, blinda e automatiza — tudo em um só lugar.
-    </p>
-    <div class="hero-actions">
-      <a href="https://wa.me/5511999070361" class="btn btn-primary" target="_blank" rel="noopener">📲 Chamar no WhatsApp</a>
-      <a href="#servicos" class="btn btn-ghost">Ver serviços</a>
+    <div class="hero-inner">
+
+      <!-- signature: animated targeting reticle around the logo -->
+      <div class="reticle" aria-hidden="true">
+        <svg viewBox="0 0 240 240">
+          <circle class="ring-outer" cx="120" cy="120" r="100"/>
+          <circle class="ring-dash" cx="120" cy="120" r="84"/>
+          <line class="tick" x1="120" y1="6"  x2="120" y2="24"/>
+          <line class="tick" x1="120" y1="216" x2="120" y2="234"/>
+          <line class="tick" x1="6" y1="120" x2="24" y2="120"/>
+          <line class="tick" x1="216" y1="120" x2="234" y2="120"/>
+          <path class="scan" d="M 120 20 A 100 100 0 0 1 220 120" stroke-linecap="round"/>
+          <path class="corner" d="M30 8 L8 8 L8 30"/>
+          <path class="corner" d="M210 8 L232 8 L232 30"/>
+          <path class="corner" d="M30 232 L8 232 L8 210"/>
+          <path class="corner" d="M210 232 L232 232 L232 210"/>
+        </svg>
+        <img src="logo.png" alt="GG Tech - Smart Solution">
+      </div>
+
+      <div class="eyebrow"><span class="dot"></span> SISTEMA ONLINE — SUPORTE ATIVO 24/7</div>
+
+      <h1>
+        Sua tecnologia, <span class="accent glitch" data-text="blindada">blindada</span>.<br>
+        Seu negócio, <span class="accent">acelerado</span>.
+      </h1>
+
+      <p class="lead">
+        Da formatação do seu notebook ao seu próprio sistema SaaS. A GG Tech é o time de T.I. que resolve, protege e automatiza — tudo em um só lugar, com a agilidade que sua empresa precisa.
+      </p>
+
+      <div class="hero-actions">
+        <a href="https://wa.me/5511999070361" class="btn btn-primary" target="_blank" rel="noopener">📲 Chamar no WhatsApp</a>
+        <a href="#servicos" class="btn btn-ghost">Ver serviços</a>
+      </div>
+
+      <div class="terminal">
+        <div class="terminal-head"><span class="tdot"></span><span class="tdot"></span><span class="tdot"></span> gg-tech@suporte: ~</div>
+        <div class="terminal-body" id="termBody"></div>
+      </div>
+
     </div>
-    <div class="scan-line"></div>
   </section>
+
+  <div class="circuit-divider"></div>
 
   <!-- SERVIÇOS -->
   <section id="servicos">
@@ -330,61 +511,72 @@
 
     <div class="services-grid reveal">
       <div class="service-card">
-        <span class="num">01 / DEV</span>
+        <span class="br1"></span><span class="br2"></span>
+        <div class="num">SISTEMAS SAAS <span class="status">● ATIVO</span></div>
         <span class="service-icon">⚙️</span>
         <h3>Criação de Sistemas SaaS</h3>
         <p>Plataformas web sob assinatura, sob medida para o seu modelo de negócio: gestão, agendamento, vendas, controle financeiro e muito mais.</p>
       </div>
       <div class="service-card">
-        <span class="num">02 / DEV</span>
+        <span class="br1"></span><span class="br2"></span>
+        <div class="num">SITES & LANDING PAGES <span class="status">● ATIVO</span></div>
         <span class="service-icon">🌐</span>
         <h3>Criação de Sites</h3>
         <p>Sites institucionais, landing pages e lojas virtuais — rápidos, modernos e responsivos, prontos para converter visitantes em clientes.</p>
       </div>
       <div class="service-card">
-        <span class="num">03 / SUPORTE</span>
+        <span class="br1"></span><span class="br2"></span>
+        <div class="num">HARDWARE & MOBILE <span class="status">● ATIVO</span></div>
         <span class="service-icon">🛠️</span>
         <h3>Reparo de Computadores e Celulares</h3>
         <p>Diagnóstico, troca de peças, limpeza interna, manutenção de placas e recuperação de aparelhos que "não ligam mais".</p>
       </div>
       <div class="service-card">
-        <span class="num">04 / SEGURANÇA</span>
+        <span class="br1"></span><span class="br2"></span>
+        <div class="num">PROTEÇÃO DIGITAL <span class="status">● ATIVO</span></div>
         <span class="service-icon">🛡️</span>
         <h3>Cibersegurança</h3>
         <p>Proteção contra vírus, ransomware e invasões. Auditoria de segurança, firewall, backups e treinamento da equipe contra golpes.</p>
       </div>
       <div class="service-card">
-        <span class="num">05 / SUPORTE</span>
+        <span class="br1"></span><span class="br2"></span>
+        <div class="num">ATENDIMENTO RÁPIDO <span class="status">● ATIVO</span></div>
         <span class="service-icon">🎧</span>
         <h3>Suporte Técnico</h3>
         <p>Atendimento remoto e presencial para empresas e residências. Resolvemos problemas de rede, sistema, e-mail e impressoras no mesmo dia.</p>
       </div>
       <div class="service-card">
-        <span class="num">06 / SUPORTE</span>
+        <span class="br1"></span><span class="br2"></span>
+        <div class="num">RESET COMPLETO <span class="status">● ATIVO</span></div>
         <span class="service-icon">💾</span>
         <h3>Formatação e Otimização</h3>
         <p>Formatação completa, reinstalação de sistema e programas, otimização de performance e backup seguro dos seus arquivos.</p>
       </div>
       <div class="service-card">
-        <span class="num">07 / AUTOMAÇÃO</span>
+        <span class="br1"></span><span class="br2"></span>
+        <div class="num">ROBÔS & FLUXOS <span class="status">● ATIVO</span></div>
         <span class="service-icon">🤖</span>
         <h3>Automação de Processos</h3>
         <p>Robôs e integrações que eliminam tarefas repetitivas: emissão de notas, respostas automáticas, planilhas inteligentes e fluxos no WhatsApp.</p>
       </div>
       <div class="service-card">
-        <span class="num">08 / INFRA</span>
+        <span class="br1"></span><span class="br2"></span>
+        <div class="num">REDES & SERVIDORES <span class="status">● ATIVO</span></div>
         <span class="service-icon">🖧</span>
         <h3>Redes e Infraestrutura</h3>
         <p>Configuração de redes Wi-Fi, cabeamento estruturado, servidores locais e armazenamento em nuvem para sua empresa.</p>
       </div>
       <div class="service-card">
-        <span class="num">09 / CONSULTORIA</span>
+        <span class="br1"></span><span class="br2"></span>
+        <div class="num">DIAGNÓSTICO ESTRATÉGICO <span class="status">● ATIVO</span></div>
         <span class="service-icon">📈</span>
         <h3>Consultoria em T.I.</h3>
         <p>Diagnóstico tecnológico completo: identificamos gastos desnecessários e indicamos as melhores soluções para o seu orçamento.</p>
       </div>
     </div>
   </section>
+
+  <div class="circuit-divider"></div>
 
   <!-- POR QUE A GG TECH -->
   <section id="sobre">
@@ -394,24 +586,26 @@
       <p>Unimos a velocidade de um suporte técnico de bairro com o nível de uma software house — sem o preço (ou a demora) de uma.</p>
     </div>
     <div class="stats reveal">
-      <div>
+      <div class="stat">
         <div class="stat-num">100%</div>
         <div class="stat-label">Diagnóstico transparente</div>
       </div>
-      <div>
+      <div class="stat">
         <div class="stat-num">24h</div>
         <div class="stat-label">Tempo médio de resposta</div>
       </div>
-      <div>
+      <div class="stat">
         <div class="stat-num">+10</div>
         <div class="stat-label">Serviços especializados</div>
       </div>
-      <div>
-        <div class="stat-num">360º</div>
+      <div class="stat">
+        <div class="stat-num">360°</div>
         <div class="stat-label">Cobertura: dev, redes e segurança</div>
       </div>
     </div>
   </section>
+
+  <div class="circuit-divider"></div>
 
   <!-- PROCESSO -->
   <section id="processo">
@@ -421,28 +615,28 @@
     </div>
     <div class="process reveal">
       <div class="process-step">
-        <div class="tag">PASSO 01</div>
+        <div class="tag">01</div>
         <div>
           <h4>Você nos chama</h4>
           <p>Manda uma mensagem no WhatsApp explicando o problema ou a ideia — sistema, site, equipamento com defeito, rede lenta, o que for.</p>
         </div>
       </div>
       <div class="process-step">
-        <div class="tag">PASSO 02</div>
+        <div class="tag">02</div>
         <div>
           <h4>Diagnóstico e orçamento</h4>
           <p>Avaliamos remotamente ou presencialmente e te damos um orçamento claro, sem letras pequenas e sem custo escondido.</p>
         </div>
       </div>
       <div class="process-step">
-        <div class="tag">PASSO 03</div>
+        <div class="tag">03</div>
         <div>
           <h4>Execução</h4>
           <p>Colocamos a mão na massa: código, peças, configurações — você acompanha o andamento em tempo real.</p>
         </div>
       </div>
       <div class="process-step">
-        <div class="tag">PASSO 04</div>
+        <div class="tag">04</div>
         <div>
           <h4>Entrega e suporte contínuo</h4>
           <p>Entregamos tudo testado e funcionando, com explicação de uso e suporte pós-entrega para o que precisar.</p>
@@ -454,6 +648,7 @@
   <!-- CONTATO -->
   <section id="contato">
     <div class="contact-box reveal">
+      <span class="corner-tl"></span><span class="corner-tr"></span><span class="corner-bl"></span><span class="corner-br"></span>
       <div class="eyebrow" style="margin-bottom:18px;">VAMOS RESOLVER ISSO AGORA</div>
       <h2>Seu problema de T.I. acaba <span class="accent">hoje</span></h2>
       <p>Fale agora com a GG Tech e receba um diagnóstico rápido e sem compromisso. Atendimento ágil para empresas e residências.</p>
@@ -468,32 +663,76 @@
   <footer>
     <div class="logo-group">
       <img src="logo.png" alt="GG Tech">
-      <div class="logo-text" style="font-size:1rem;">GG TECH<span>SMART SOLUTION</span></div>
+      <div>GG TECH // SMART SOLUTION</div>
     </div>
     <div class="footer-links">
       <a href="#servicos">Serviços</a>
       <a href="#processo">Processo</a>
       <a href="#contato">Contato</a>
     </div>
-    <div>© 2026 GG Tech — Smart Solution. Todos os direitos reservados.</div>
+    <div>© 2026 GG Tech. Todos os direitos reservados.</div>
   </footer>
 
 </div>
 
 <script>
-  // mobile menu
+  const ch = document.getElementById('crosshair');
+  const glow = document.getElementById('bgGlow');
+  window.addEventListener('mousemove', (e) => {
+    ch.style.left = e.clientX + 'px';
+    ch.style.top = e.clientY + 'px';
+    glow.style.setProperty('--mx', e.clientX + 'px');
+    glow.style.setProperty('--my', e.clientY + 'px');
+  });
+  document.querySelectorAll('a, button').forEach(el=>{
+    el.addEventListener('mouseenter', ()=>{ ch.style.width='54px'; ch.style.height='54px'; });
+    el.addEventListener('mouseleave', ()=>{ ch.style.width='34px'; ch.style.height='34px'; });
+  });
+
   const toggle = document.getElementById('menuToggle');
   const nav = document.getElementById('nav');
-  toggle.addEventListener('click', () => {
-    nav.classList.toggle('open');
-  });
+  toggle.addEventListener('click', () => nav.classList.toggle('open'));
   nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => nav.classList.remove('open')));
 
-  // reveal on scroll
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('in'); });
   }, {threshold:0.15});
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  const termLines = [
+    {text:'> escaneando ambiente...', dim:true, pause:400},
+    {text:'> ameaças encontradas: 0', dim:false, pause:300},
+    {text:'> conexão segura: estabelecida', dim:false, pause:300},
+    {text:'> sistemas: SaaS, Web, Redes, Suporte... OK', dim:true, pause:300},
+    {text:'> pronto para atender você.', dim:false, pause:0},
+  ];
+  const termBody = document.getElementById('termBody');
+  let li=0, ci=0;
+  function typeTerm(){
+    if(li >= termLines.length){
+      const span = document.createElement('span');
+      span.className='cursor-blink';
+      termBody.appendChild(span);
+      return;
+    }
+    const {text, dim} = termLines[li];
+    if(ci === 0){
+      const div = document.createElement('div');
+      div.className = dim ? 'line-dim' : '';
+      div.id = 'tline'+li;
+      termBody.appendChild(div);
+    }
+    const div = document.getElementById('tline'+li);
+    div.textContent = text.slice(0, ci+1);
+    ci++;
+    if(ci <= text.length){
+      setTimeout(typeTerm, 22);
+    } else {
+      li++; ci=0;
+      setTimeout(typeTerm, termLines[li-1].pause);
+    }
+  }
+  typeTerm();
 </script>
 </body>
 </html>
